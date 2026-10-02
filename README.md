@@ -2,7 +2,40 @@
 
 ## Project Overview
 
-This project implements a Convolutional Neural Network (CNN) deep learning model to accurately classify five distinct commercial varieties of rice: Arborio, Basmati, Ipsala, Jasmine, and Karacadag. Developed with TensorFlow and Keras, the pipeline covers automated dataset retrieval, balanced sampling across classes, standardized image preprocessing with aspect ratio preservation, data augmentation, hyperparameter-tuned model training with callbacks, comprehensive evaluation on an independent test set, error analysis, and multi-format deployment exports (TensorFlow SavedModel, TensorFlow Lite, and TensorFlow.js).
+This project implements a Convolutional Neural Network (CNN) deep learning model to accurately classify five distinct commercial varieties of rice: Arborio, Basmati, Ipsala, Jasmine, and Karacadag. Developed with TensorFlow and Keras, the pipeline covers automated dataset retrieval, balanced sampling across classes, standardized image preprocessing with aspect ratio preservation, data augmentation, hyperparameter-tuned model training with callbacks, comprehensive evaluation on an independent test set, error analysis, and multi-format deployment exports (TensorFlow SavedModel, TensorFlow Lite, and TensorFlow.js), accompanied by an interactive web inspection dashboard.
+
+## Technology Stack
+
+The project leverages a modern, production-grade technology stack across all stages:
+
+### 1. Deep Learning, Modeling & Vision
+- **Python (3.11 / 3.12)**: Core programming language for end-to-end model development, data pipelines, and backend serving.
+- **TensorFlow 2.21.0 & Keras**: Primary framework for neural network design, custom callbacks, loss functions, and optimization routines.
+- **NumPy (2.4.3 / 1.26.4)**: High-performance multidimensional array manipulation and numerical tensor operations.
+- **Pillow (PIL)**: Image decoding, boundary calculations for aspect-ratio preservation, and bilinear spatial resizing.
+- **Scikit-Learn (1.9.0)**: Exhaustive evaluation diagnostics, generating precision, recall, F1-scores, and multiclass confusion matrix calculations.
+- **Matplotlib (3.10.8)**: Visualization of training/validation loss, learning curves, and exploratory class distribution plots.
+
+### 2. Data Engineering & Pipeline Optimization
+- **kagglehub (1.0.0)**: Headless, programmatic retrieval and version-controlled caching of the Kaggle Rice Image Dataset.
+- **tf.data Pipeline**: Asynchronous data loading utilizing memory caching (`cache()`), random buffer shuffling, and thread prefetching (`AUTOTUNE`) for maximized hardware utilization.
+- **Keras Data Augmentation**: In-graph stochastic transformations including horizontal/vertical flipping, rotation, and zooming.
+
+### 3. Model Compression & Edge Deployment Formats
+- **TensorFlow Lite (TFLite)**: Flatbuffer serialization (`tflite/model.tflite`, 11.06 MB) with XNNPACK runtime delegate for low-latency (< 15 ms) CPU/mobile inference.
+- **TensorFlow SavedModel**: Full protocol-buffer graph representation (`saved_model/`) with complete computation graph and signature definitions for cloud containerized deployments.
+- **TensorFlow.js (TFJS)**: Sharded binary topology and weights (`tfjs_model/`) enabling zero-server client-side inference directly inside web browsers.
+
+### 4. Web Application & Backend API
+- **FastAPI (0.141.1)**: Asynchronous, OpenAPI-compliant Python web framework providing high-throughput inference endpoints.
+- **Uvicorn (0.52.1)**: Production-grade ASGI web server implementation based on uvloop and httptools.
+- **python-multipart**: Streaming parser for multipart/form-data image uploads.
+
+### 5. Frontend & Interface Engineering
+- **HTML5**: Semantic web architecture with native media stream integration (`<video>`, `<canvas>`) for live camera capture.
+- **Vanilla CSS3**: Tailored dark-mode design system featuring backdrop blur (glassmorphism), responsive CSS Grid, custom glow tokens, and fluid micro-animations without external UI library dependencies.
+- **Vanilla JavaScript (ES6+)**: Asynchronous Fetch API client, live preview rendering, 1-click sample dataset test triggers, and animated probability distribution indicators.
+- **Google Fonts (Outfit & Plus Jakarta Sans)**: High-legibility modern typography system.
 
 ## Dataset
 
@@ -170,6 +203,29 @@ print(f"Test Image: {img_path}")
 print(f"Predicted Class: {class_names[pred_idx]}")
 print(f"Confidence: {confidence:.2f}%")
 ```
+
+### 4. Running the Interactive Web Application
+
+A full-featured web inspection dashboard powered by FastAPI and the TFLite edge engine is included in the `web_app/` directory:
+
+1. Navigate to the `web_app` directory:
+   ```bash
+   cd web_app
+   ```
+2. Start the FastAPI server using Uvicorn:
+   ```bash
+   uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+   ```
+3. Open your web browser and navigate to:
+   ```
+   http://127.0.0.1:8000
+   ```
+4. Features available in the web interface:
+   - Drag & drop rice photo upload or live webcam grain capture.
+   - 1-Click instant test chips loaded from the verified dataset.
+   - Real-time probability bar chart for all 5 varieties.
+   - Agronomic and culinary metadata cards (origin, texture, culinary uses, cooking water ratio, glycemic index).
+   - Low-latency inference reporting (< 15 ms).
 
 ## Conclusion
 

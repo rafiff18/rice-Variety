@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiceVision AI - Grain Variety Classifier</title>
+  <meta name="description" content="Deep Learning computer vision system for identifying Arborio, Basmati, Ipsala, Jasmine, and Karacadag rice grains with 97.5% accuracy.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  
+  <div class="app-container">
+    <!-- Navbar / Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#brandGrad)" stroke="none"/>
+            <defs>
+              <linearGradient id="brandGrad" x1="2" y1="2" x2="22" y2="21" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#10B981" />
+                <stop offset="1" stop-color="#38BDF8" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">RiceVision AI</h1>
+          <p class="brand-subtitle">Commercial Rice Variety Vision Classifier</p>
+        </div>
+      </div>
+      
+      <div class="header-badges">
+        <div class="badge badge-tech">
+          <span class="pulse-dot"></span>
+          <span>TFLite Engine</span>
+        </div>
+        <div class="badge badge-metric">
+          <span>Accuracy: <strong>97.52%</strong></span>
+        </div>
+        <div class="badge badge-metric">
+          <span>Dataset: <strong>10,000 Grains</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-grid">
+      <!-- Left Column: Input and Samples -->
+      <section class="panel upload-panel" id="uploadPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">1. Grain Input</h2>
+          <span class="panel-tag">Image Feed</span>
+        </div>
+
+        <!-- Dropzone -->
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">
+          
+          <div class="dropzone-idle" id="dropzoneIdle">
+            <div class="upload-icon-wrapper">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="dropzone-primary-text">Drag & drop rice grain photo here</p>
+            <p class="dropzone-secondary-text">or <button type="button" class="btn-browse" id="btnBrowse">browse from computer</button></p>
+            <div class="dropzone-hints">
+              <span>Supports JPG, PNG, WEBP</span>
+              <span>&bull;</span>
+              <span>150x150 Auto-Cropped</span>
+            </div>
+          </div>
+
+          <!-- Preview State -->
+          <div class="dropzone-preview hidden" id="dropzonePreview">
+            <img id="previewImage" src="" alt="Selected Rice Grain" class="preview-img">
+            <div class="preview-overlay">
+              <button type="button" class="btn-change-image" id="btnChangeImage">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"/>
+                  <path d="M1 20v-6h6"/>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                Replace Image
+              </button>
+            </div>
+          </div>
+          
+          <!-- Scan Animation Line -->
+          <div class="scan-laser hidden" id="scanLaser"></div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="action-buttons">
+          <button type="button" class="btn btn-primary" id="btnPredict" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/>
+            </svg>
+            <span>Analyze Grain Variety</span>
+          </button>
+          
+          <button type="button" class="btn btn-secondary" id="btnCamera">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <span>Use Webcam</span>
+          </button>
+        </div>
+
+        <!-- Webcam Modal Container -->
+        <div class="webcam-container hidden" id="webcamContainer">
+          <video id="webcamVideo" autoplay playsinline></video>
+          <div class="webcam-controls">
+            <button type="button" class="btn btn-primary" id="btnSnap">Snap Photo</button>
+            <button type="button" class="btn btn-secondary" id="btnCloseCamera">Cancel</button>
+          </div>
+        </div>
+
+        <!-- 1-Click Sample Testing Gallery -->
+        <div class="samples-section">
+          <div class="samples-header">
+            <span class="samples-title">1-Click Test Samples</span>
+            <span class="samples-sub">From 10,000 Verified Dataset</span>
+          </div>
+          <div class="samples-grid" id="samplesGrid">
+            <div class="sample-skeleton">Loading samples...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Inference & Diagnostics -->
+      <section class="panel result-panel" id="resultPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">2. Classification Diagnostics</h2>
+          <div class="latency-tag hidden" id="latencyTag">
+            <span>Latency: <strong id="latencyVal">0</strong> ms</span>
+          </div>
+        </div>
+
+        <!-- Empty Placeholder State -->
+        <div class="result-placeholder" id="resultPlaceholder">
+          <div class="placeholder-art">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 3c-2.5 4-4 8-4 9a4 4 0 0 0 8 0c0-1-1.5-5-4-9z"/>
+            </svg>
+          </div>
+          <h3>Awaiting Grain Input</h3>
+          <p>Upload a rice photograph or select one of the verified sample buttons on the left to inspect prediction breakdown and culinary profiles.</p>
+        </div>
+
+        <!-- Active Result Content -->
+        <div class="result-content hidden" id="resultContent">
+          <!-- Top Match Hero Card -->
+          <div class="hero-result-card" id="heroResultCard">
+            <div class="hero-top-row">
+              <div class="hero-left">
+                <span class="hero-label">Detected Variety</span>
+                <h3 class="hero-variety-name" id="heroVarietyName">Basmati</h3>
+                <p class="hero-tagline" id="heroTagline">Crown Jewel of Fragrant Long Grains</p>
+              </div>
+              <div class="hero-badge-wrap">
+                <div class="confidence-circle" id="confidenceCircle">
+                  <span class="confidence-val" id="confidenceVal">98.4%</span>
+                  <span class="confidence-lbl">Match</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Probability Distribution Bars -->
+          <div class="probability-card">
+            <h4 class="card-subtitle">Variety Probability Distribution</h4>
+            <div class="prob-list" id="probList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Variety Agronomic & Culinary Specs -->
+          <div class="specs-card" id="specsCard">
+            <h4 class="card-subtitle">Variety Profile & Agronomic Specifications</h4>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <span class="spec-label">Geographic Origin</span>
+                <span class="spec-value" id="specOrigin">-</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Glycemic Index (GI)</span>
+                <span class="spec-value" id="specGI">-</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Grain Morphology</span>
+                <span class="spec-value" id="specShape">-</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Cooked Texture</span>
+                <span class="spec-value" id="specTexture">-</span>
+              </div>
+              <div class="spec-item full-width">
+                <span class="spec-label">Culinary Applications</span>
+                <span class="spec-value highlight-gold" id="specUses">-</span>
+              </div>
+              <div class="spec-item full-width">
+                <span class="spec-label">Recommended Water-to-Rice Ratio</span>
+                <span class="spec-value" id="specRatio">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Built with TensorFlow 2.21 &bull; TFLite Edge Runtime &bull; FastAPI Microservice</span>
+      <span>10,000 Images Dataset &bull; Overall Test Accuracy: 97.52%</span>
+    </footer>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
